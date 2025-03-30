@@ -1,38 +1,38 @@
-import { SignJWT, jwtVerify } from "jose";
+import jwt from "jsonwebtoken";
 
-const create_jwt = async (data: any) => {
-  const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+const create_jwt = (data: any) => {
+  const secret = process.env.JWT_SECRET as string;
+  if (!secret) throw new Error("JWT_SECRET is not defined");
 
-  const token = await new SignJWT(data)
-    .setProtectedHeader({ alg: "HS256", typ: "JWT" })
-    .setIssuedAt()
-    .setExpirationTime("7d")
-    .sign(secret);
-
-  return token;
+  return jwt.sign(data, secret, {
+    algorithm: "HS256",
+    expiresIn: "7d",
+  });
 };
 
-const verify_jwt = async (token: string) => {
-  const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+const verify_jwt = (token: string) => {
+  const secret = process.env.JWT_SECRET as string;
+  if (!secret) throw new Error("JWT_SECRET is not defined");
 
   try {
-    const { payload } = await jwtVerify(token, secret);
-    const email = payload.email as string;
-    return email;
+    const payload = jwt.verify(token, secret) as jwt.JwtPayload;
+    return payload.email as string;
   } catch (error) {
     console.error("Token verification failed:", error);
     return null;
   }
 };
 
-const isValid = async (token: string) => {
-  const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+const isValid = (token: string) => {
+  const secret = process.env.JWT_SECRET as string;
+  if (!secret) throw new Error("JWT_SECRET is not defined");
 
   try {
-    await jwtVerify(token, secret);
+    jwt.verify(token, secret);
     return true;
   } catch (error) {
     return false;
   }
 };
-export { create_jwt, verify_jwt ,isValid};
+
+export { create_jwt, verify_jwt, isValid };

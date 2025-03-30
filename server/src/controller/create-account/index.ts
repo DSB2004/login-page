@@ -8,10 +8,10 @@ const AccountController = async (req: Request, res: Response): Promise<any> => {
     if (!result.success) {
       return res.status(400).send({ error: result.message });
     }
-    
+
     res.status(201).send({
       message: "User added successfully",
-      token: result.message,
+      token: `Bearer ${result.message}`,
     });
   } catch (err) {
     res.status(500).send({ error: "Internal Server Error" });
